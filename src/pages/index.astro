@@ -1,0 +1,73 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { ProteinDashboard } from "../components/ProteinDashboard";
+import { SHOPS, products } from "../data/products";
+import {
+  fetchDashboardProducts,
+  fetchDashboardRows,
+  fetchDealTiers,
+  fetchProductVariants,
+} from "../lib/read-model";
+
+const title = "Eiwit.Index — Goedkoopste prijs per gram eiwit in Nederland";
+const description =
+  "Vergelijk eiwitshakes en creatine van Nederlandse webshops op prijs per gram puur eiwit. Sorteer op €/g eiwit inclusief verzending en reken je eigen kortingscode mee.";
+
+const liveRows = await fetchDashboardRows("protein");
+const liveProducts = await fetchDashboardProducts();
+const liveDealTiers = await fetchDealTiers();
+const liveVariants = await fetchProductVariants();
+const dataMode = liveRows.length > 0 ? "live" : "fallback";
+const productCount = liveProducts.length > 0 ? liveProducts.length : products.length;
+const shopList =
+  liveRows.length > 0
+    ? [...new Set(liveRows.map((r) => r.shop_name))].sort().join(", ")
+    : [...SHOPS].sort().join(", ");
+---
+
+<Layout {title} {description} canonicalPath="/">
+  <main>
+    <section
+      class="max-w-[1400px] mx-auto px-4 sm:px-6 pt-8 pb-2 text-foreground"
+      aria-labelledby="intro-heading"
+    >
+      <h1 id="intro-heading" class="text-2xl sm:text-3xl font-semibold tracking-tight">
+        Vergelijk eiwit en creatine op prijs per gram
+      </h1>
+      <p class="mt-3 max-w-3xl text-muted-foreground text-sm sm:text-base leading-relaxed">
+        Eiwit.Index rekent zakprijs, eiwitpercentage en verzendkosten om naar <strong
+          class="text-foreground font-medium">euro per gram puur eiwit</strong
+        >. Zo zie je welke shake of creatine in Nederland het voordeligst is — ook als een
+        aanbieding op kleinere zakken misleidend lijkt. Onderstaande tabel is interactief; crawlers
+        zien deze uitleg en de actuele dataset ({productCount} demo-producten, {SHOPS.length} winkels).
+      </p>
+      <h2 class="mt-6 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        Twee kortingslagen
+      </h2>
+      <p class="mt-2 max-w-3xl text-sm text-muted-foreground leading-relaxed">
+        De prijs in de tabel is <strong class="text-foreground font-medium">inclusief de
+          affiliate-korting</strong> die je via onze link bij de winkel krijgt — die hoef je dus niet
+        zelf in te voeren. Heb je daarnaast nog een <strong class="text-foreground font-medium">eigen
+        kortingscode</strong> (bijvoorbeeld een actie of persoonlijke code)? Voer ‘m in via
+        <em>Mijn kortingscode</em> en de €/g eiwit wordt direct herberekend, zodat je
+        eerlijk kunt vergelijken. We passen die code zelf niet toe — gebruik ‘m bij de webshop.
+      </p>
+      <h2 class="mt-6 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        Webshops in de vergelijking
+      </h2>
+      <p class="mt-2 text-sm text-muted-foreground max-w-3xl">
+        {shopList}.
+      </p>
+      <p class="mt-2 text-xs text-muted-foreground">
+        Databron: {dataMode === "live" ? "Live Supabase" : "Mock fallback (offline mode)"}.
+      </p>
+    </section>
+
+    <ProteinDashboard
+      client:load
+      initialProducts={liveProducts}
+      initialDealTiers={liveDealTiers}
+      initialVariants={liveVariants}
+    />
+  </main>
+</Layout>

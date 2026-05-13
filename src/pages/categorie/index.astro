@@ -1,0 +1,22 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { fetchDashboardRows } from "../../lib/read-model";
+
+const rows = await fetchDashboardRows();
+const categories = [...new Set(rows.map((r) => r.category_slug))];
+const title = "Categorieen vergelijken voor eiwitpoeder";
+const description = "Navigeer per categorie en vergelijk producten op euro per gram eiwit.";
+---
+
+<Layout {title} {description} canonicalPath="/categorie">
+  <main class="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
+    <h1 class="text-2xl font-semibold tracking-tight">Categorieen</h1>
+    <ul class="mt-4 space-y-2">
+      {categories.map((slug) => (
+        <li>
+          <a href={`/categorie/${slug}`} class="text-foreground hover:underline">{slug}</a>
+        </li>
+      ))}
+    </ul>
+  </main>
+</Layout>

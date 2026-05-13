@@ -1,0 +1,70 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  /** Zonder domein; bv. "/creatine" */
+  canonicalPath?: string;
+  noindex?: boolean;
+}
+
+const { title, description, canonicalPath, noindex = false } = Astro.props;
+const path = canonicalPath ?? Astro.url.pathname;
+const canonicalURL = Astro.site ? new URL(path, Astro.site).href : new URL(path, Astro.url).href;
+const siteHref = (Astro.site?.href ?? `${Astro.url.origin}/`).replace(/\/?$/, "/");
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${siteHref}#website`,
+      name: "Eiwit.Index",
+      url: siteHref,
+      description:
+        "Vergelijk eiwitproducten van Nederlandse webshops op prijs per gram puur eiwit.",
+      inLanguage: "nl-NL",
+    },
+    {
+      "@type": "WebPage",
+      "@id": `${canonicalURL}#webpage`,
+      url: canonicalURL,
+      name: title,
+      description,
+      isPartOf: { "@id": `${siteHref}#website` },
+      inLanguage: "nl-NL",
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="canonical" href={canonicalURL} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <meta name="description" content={description} />
+    <meta name="author" content="Eiwit.Index" />
+    <title>{title}</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:locale" content="nl_NL" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <meta name="theme-color" content="#2d9b5e" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

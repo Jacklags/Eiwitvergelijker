@@ -1,0 +1,55 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { fetchDashboardRows, formatEuro } from "../../lib/read-model";
+
+export async function getStaticPaths() {
+  const rows = await fetchDashboardRows();
+  const slugs = [...new Set(rows.map((r) => r.shop_slug))];
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const rows = (await fetchDashboardRows()).filter((r) => r.shop_slug === slug).slice(0, 100);
+const shopName = rows[0]?.shop_name ?? slug;
+const title = `${shopName} prijzen vergelijken op €/g eiwit`;
+const description = `Bekijk aanbiedingen van ${shopName} en vergelijk direct op prijs per gram eiwit.`;
+---
+
+<Layout {title} {description} canonicalPath={`/shops/${slug}`}>
+  <main class="max-w-[1100px] mx-auto px-4 sm:px-6 py-8">
+    <h1 class="text-2xl font-semibold tracking-tight">Shop: {shopName}</h1>
+    <p class="mt-2 text-sm text-muted-foreground">
+      Producten van deze shop gerangschikt op euro per gram eiwit.
+    </p>
+
+    <div class="mt-6 overflow-x-auto rounded-md border border-border bg-card">
+      <table class="w-full text-sm">
+        <thead class="border-b border-border bg-secondary/50">
+          <tr class="text-left text-xs uppercase tracking-wide text-muted-foreground">
+            <th class="px-4 py-3">Product</th>
+            <th class="px-4 py-3">Prijs</th>
+            <th class="px-4 py-3">Eiwit (g/100g)</th>
+            <th class="px-4 py-3">€/g eiwit</th>
+            <th class="px-4 py-3 text-right">Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr class="border-b border-border/60 last:border-0">
+              <td class="px-4 py-3">
+                <p class="font-medium">{r.product_name}</p>
+                <p class="text-xs text-muted-foreground">{r.brand}</p>
+              </td>
+              <td class="px-4 py-3 font-mono">{formatEuro(r.product_price)}</td>
+              <td class="px-4 py-3 font-mono">{r.protein_per_100g} g</td>
+              <td class="px-4 py-3 font-mono">{formatEuro(r.price_per_gram_protein, 4)}</td>
+              <td class="px-4 py-3 text-right">
+                <a href={r.offer_url} target="_blank" rel="noopener noreferrer" class="hover:underline">Shop</a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</Layout>

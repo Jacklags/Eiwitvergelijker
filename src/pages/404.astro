@@ -1,0 +1,26 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const title = "Pagina niet gevonden — Eiwit.Index";
+const description = "Deze pagina bestaat niet. Ga terug naar de eiwitvergelijker.";
+---
+
+<Layout {title} {description} canonicalPath="/404" noindex>
+  <div class="flex min-h-screen items-center justify-center bg-background px-4">
+    <div class="max-w-md text-center">
+      <p class="text-7xl font-bold text-foreground">404</p>
+      <h1 class="mt-4 text-xl font-semibold text-foreground">Pagina niet gevonden</h1>
+      <p class="mt-2 text-sm text-muted-foreground">
+        Deze URL bestaat niet of is verplaatst.
+      </p>
+      <div class="mt-6">
+        <a
+          href="/"
+          class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          Naar Eiwit.Index
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>

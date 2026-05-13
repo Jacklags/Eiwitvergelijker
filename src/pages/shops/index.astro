@@ -1,0 +1,22 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { fetchDashboardRows } from "../../lib/read-model";
+
+const rows = await fetchDashboardRows();
+const shops = [...new Map(rows.map((r) => [r.shop_slug, r.shop_name])).entries()];
+const title = "Webshops vergelijken voor eiwitpoeder";
+const description = "Navigeer per webshop en vergelijk prijzen op euro per gram eiwit.";
+---
+
+<Layout {title} {description} canonicalPath="/shops">
+  <main class="max-w-[900px] mx-auto px-4 sm:px-6 py-8">
+    <h1 class="text-2xl font-semibold tracking-tight">Webshops</h1>
+    <ul class="mt-4 space-y-2">
+      {shops.map(([slug, name]) => (
+        <li>
+          <a href={`/shops/${slug}`} class="text-foreground hover:underline">{name}</a>
+        </li>
+      ))}
+    </ul>
+  </main>
+</Layout>
